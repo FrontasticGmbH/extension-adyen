@@ -3,7 +3,7 @@ import { CreateSessionDTO, CreateSessionPayload } from '../Session';
 import AdyenApi from '../BaseApi';
 import { v4 as uuidv4 } from 'uuid';
 import { Account } from '../../../types/account/Account';
-import { getLocale } from '../../utils/Request';
+import { getLocale } from '../utils/Request';
 
 export const createSession = async (request: Request, actionContext: ActionContext) => {
   const api = new AdyenApi(actionContext.frontasticContext.project.configuration.payment.adyen);
