@@ -1,5 +1,4 @@
-// This type is used only for adyen, and does not need to be exported
-interface Amount {
+export interface Amount {
   currency: string; // The currency code compliant to ISO 4217.
   value: number; // In cents
 }
@@ -31,7 +30,7 @@ export interface SessionResponse {
 
 export interface PaymentDetails {
   details: {
-    redirectResult: string;    
+    redirectResult: string;
   }
 }
 

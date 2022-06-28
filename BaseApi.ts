@@ -1,11 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
-<<<<<<< HEAD:saas/project-libraries/extensions/payment-adyen/BaseApi.ts
-import { AdyenMapper } from './mappers';
-import { CreateSessionPayload, SessionResponse } from './Session';
-=======
 import { AdyenMapper } from './mappers/AdyenMapper';
-import { CreateSessionPayload, SessionResponse, PaymentDetails, PaymentDetailsResponse } from '@Types/adyen/Session';
->>>>>>> master:saas/project-libraries/extension-commercetools/adyen/BaseApi.ts
+import { CreateSessionPayload, SessionResponse, PaymentDetails, PaymentDetailsResponse } from './Session';
 
 interface AdyenConfig {
   apiKey: string;

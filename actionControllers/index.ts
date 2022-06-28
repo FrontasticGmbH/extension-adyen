@@ -1,21 +1,14 @@
-import { ActionContext, Request, Response } from '@frontastic/extension-types/src/ts/index';
-<<<<<<< HEAD:saas/project-libraries/extensions/payment-adyen/actionControllers/index.ts
-import { CreateSessionDTO, CreateSessionPayload } from '../Session';
+import { CreateSessionDTO, CreateSessionPayload, PaymentDetails } from '../Session';
 import AdyenApi from '../BaseApi';
-import { v4 as uuidv4 } from 'uuid';
-import { Account } from '../../../types/account/Account';
+import { CartApi } from '../../commerce-commercetools/apis/CartApi';
+import { EmailApi } from '../../commerce-commercetools/apis/EmailApi';
+import { Guid } from '../utils/Guid';
 import { getLocale } from '../utils/Request';
-=======
-import { CreateSessionDTO, CreateSessionPayload, PaymentDetails } from '@Types/adyen/Session';
-import AdyenApi from '../BaseApi';
-import { CartApi } from '../../commercetools/CartApi';
-import { EmailApi } from '../../commercetools/EmailApi';
-import { Guid } from '../../utils/Guid';
-import { getLocale } from '../../utils/Request';
-import { CartFetcher } from '../../utils/CartFetcher';
+import { CartFetcher } from '../utils/CartFetcher';
 import { Account } from '../../../types/account/Account';
 import { URLSearchParams } from 'url';
->>>>>>> master:saas/project-libraries/extensions/payment-adyen/actionControllers/AdyenController.ts
+import { ActionContext, Request } from "@frontastic/extension-types";
+import { Response } from "@frontastic/extension-types/src/ts/index";
 
 export const createSession = async (request: Request, actionContext: ActionContext) => {
   const adyenApi = new AdyenApi(actionContext.frontasticContext.project.configuration.payment.adyen);
@@ -43,7 +36,7 @@ export const createSession = async (request: Request, actionContext: ActionConte
 export const checkout = async (request: Request, actionContext: ActionContext) => {
   const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
   const emailApi = new EmailApi(actionContext.frontasticContext.project.configuration.smtp);
-  const adyenApi = new AdyenApi(actionContext.frontasticContext.project.configuration.payment.adyen);  
+  const adyenApi = new AdyenApi(actionContext.frontasticContext.project.configuration.payment.adyen);
 
   const { account } = JSON.parse(request.body);
 
@@ -66,7 +59,7 @@ export const checkout = async (request: Request, actionContext: ActionContext) =
 
     const response: Response = {
       statusCode: 200,
-      body: JSON.stringify(data),      
+      body: JSON.stringify(data),
       sessionData: {
         ...request.sessionData,
         cartId,
@@ -106,7 +99,7 @@ export const notifications = async (request: Request, actionContext: ActionConte
   value=7650&
   live=false&
   eventDate=2022-06-20T07%3A36%3A15.00Z"
-  
+
 
   //const notificationRequestItems = JSON.parse(request.body).notificationItems;
 

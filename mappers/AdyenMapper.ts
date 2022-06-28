@@ -1,4 +1,4 @@
-import { SessionResponse, PaymentDetailsResponse } from '@Types/adyen/Session';
+import { SessionResponse, PaymentDetailsResponse } from '../Session';
 
 export class AdyenMapper {
   static adyenSessionResponseToSessionResponse(sessionResponse: SessionResponse) {
