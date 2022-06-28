@@ -1,6 +1,11 @@
 import axios, { AxiosInstance } from 'axios';
+<<<<<<< HEAD:saas/project-libraries/extensions/payment-adyen/BaseApi.ts
 import { AdyenMapper } from './mappers';
 import { CreateSessionPayload, SessionResponse } from './Session';
+=======
+import { AdyenMapper } from './mappers/AdyenMapper';
+import { CreateSessionPayload, SessionResponse, PaymentDetails, PaymentDetailsResponse } from '@Types/adyen/Session';
+>>>>>>> master:saas/project-libraries/extension-commercetools/adyen/BaseApi.ts
 
 interface AdyenConfig {
   apiKey: string;
@@ -32,7 +37,12 @@ class BaseApi {
 
   async createSession(payload: CreateSessionPayload) {
     const response = await this.instance.post<SessionResponse>('/sessions', payload);
-    return AdyenMapper.adyenSessionResponesToSessionResponse(response.data);
+    return AdyenMapper.adyenSessionResponseToSessionResponse(response.data);
+  }
+
+  async paymentDetails(payload: PaymentDetails) {
+    const response = await this.instance.post<PaymentDetailsResponse>('/payments/details', payload);
+    return AdyenMapper.adyenPaymentDetailsToDetails(response.data);
   }
 }
 
