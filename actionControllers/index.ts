@@ -3,6 +3,7 @@ import { CreateSessionDTO, CreateSessionPayload, PaymentDetails } from './../Ses
 import AdyenApi from '../BaseApi';
 import { CartApi } from '../../commerce-commercetools/apis/CartApi';
 import { EmailApi } from '../../commerce-commercetools/apis/EmailApi';
+import { isReadyForCheckout } from '../../commerce-commercetools/utils/Cart';
 import { Guid } from '../utils/Guid';
 import { getLocale } from '../utils/Request';
 import { CartFetcher } from '../utils/CartFetcher';
@@ -33,9 +34,37 @@ export const createSession = async (request: Request, actionContext: ActionConte
   return response;
 };
 
-export const checkout = async (request: Request, actionContext: ActionContext) => {
+
+const createPayment = async (request: Request, actionContext: ActionContext, data: any) => {
   const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
   const emailApi = new EmailApi(actionContext.frontasticContext.project.configuration.smtp);
+
+  let cart = await cartApi.getById(data.merchantReference);
+
+  if (isReadyForCheckout(cart)) {
+    const payment: Payment = {
+      id: Guid.newGuid(),
+      paymentId: data.merchantReference,
+      paymentMethod: 'method',
+      paymentStatus: PaymentStatuses.PENDING,
+      paymentProvider: data.pspReference,
+      amountPlanned: {
+        centAmount: cart.sum.centAmount,
+        currencyCode: cart.sum.currencyCode
+      }
+    };
+
+    cart = await cartApi.addPayment(cart, payment);
+
+    cart = await cartApi.order(cart);
+
+    await emailApi.sendPaymentConfirmationEmail(cart.email);
+  }
+}
+
+export const checkout = async (request: Request, actionContext: ActionContext) => {
+  //const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
+  //const emailApi = new EmailApi(actionContext.frontasticContext.project.configuration.smtp);
   const adyenApi = new AdyenApi(actionContext.frontasticContext.project.configuration.payment.adyen);
 
   const payload = {
@@ -48,41 +77,20 @@ export const checkout = async (request: Request, actionContext: ActionContext) =
   const data: any = await adyenApi.paymentDetails(payload);
 
   if (data?.resultCode === 'Authorised' && data?.merchantReference) {
-    try {
-      let cart = await cartApi.getById(data.merchantReference);
-      cart = await cartApi.order(cart);
+    await createPayment(request, actionContext, data);
 
-      const payment: Payment = {
-        id: Guid.newGuid(),
-        paymentId: data.merchantReference,
-        paymentMethod: '',
-        paymentStatus: PaymentStatuses.PENDING,
-        paymentProvider: data.pspReference,
-        amountPlanned: {
-          centAmount: cart.sum.centAmount,
-          currencyCode: cart.sum.currencyCode
-        }
-      };
+    // Unset the cartId
+    const cartId: string = undefined;
 
-      await cartApi.addPayment(cart, payment);
-
-      if (cart) await emailApi.sendPaymentConfirmationEmail(cart.email);
-    } catch(error) {
-
-    }
-    
-      // Unset the cartId
-      const cartId: string = undefined;
-
-      const response: Response = {
-        statusCode: 200,
-        body: JSON.stringify({}),      
-        sessionData: {
-          ...request.sessionData,
-          cartId,
-        },
-      };
-      return response;  
+    const response: Response = {
+      statusCode: 200,
+      body: JSON.stringify({}),
+      sessionData: {
+        ...request.sessionData,
+        cartId,
+      },
+    };
+    return response;
   }
 
   const response: Response = {
@@ -95,11 +103,15 @@ export const checkout = async (request: Request, actionContext: ActionContext) =
 
 export const notifications = async (request: Request, actionContext: ActionContext) => {
   console.log('NOTIFICATIONS INCOMMING');
+
   const params = new URLSearchParams(request.body);
 
   console.log('eventCode: ', params.get('eventCode'));
   console.log('pspReference: ', params.get('pspReference'));
   console.log('merchantReference: ', params.get('merchantReference'));
+
+  if (params.get('eventCode') === 'AUTHORISATION') {
+  }
 
 /*
   "originalReference=&
