@@ -1,8 +1,8 @@
-import * as PaymentActions from './actionControllers';
+import * as AdyenActions from './actionControllers';
 import { ExtensionRegistry } from '@frontastic/extension-types';
 
 export default {
   actions: {
-    payment: PaymentActions,
+    adyen: AdyenActions,
   },
 } as ExtensionRegistry;

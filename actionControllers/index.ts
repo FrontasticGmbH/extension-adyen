@@ -1,4 +1,5 @@
-import { CreateSessionDTO, CreateSessionPayload, PaymentDetails } from '../Session';
+import { ActionContext, Request, Response } from '@frontastic/extension-types/src/ts/index';
+import { CreateSessionDTO, CreateSessionPayload, PaymentDetails } from './../Session';
 import AdyenApi from '../BaseApi';
 import { CartApi } from '../../commerce-commercetools/apis/CartApi';
 import { EmailApi } from '../../commerce-commercetools/apis/EmailApi';
@@ -6,9 +7,8 @@ import { Guid } from '../utils/Guid';
 import { getLocale } from '../utils/Request';
 import { CartFetcher } from '../utils/CartFetcher';
 import { Account } from '../../../types/account/Account';
+import { Payment, PaymentStatuses } from '../../../types/cart/Payment';
 import { URLSearchParams } from 'url';
-import { ActionContext, Request } from "@frontastic/extension-types";
-import { Response } from "@frontastic/extension-types/src/ts/index";
 
 export const createSession = async (request: Request, actionContext: ActionContext) => {
   const adyenApi = new AdyenApi(actionContext.frontasticContext.project.configuration.payment.adyen);
@@ -16,7 +16,7 @@ export const createSession = async (request: Request, actionContext: ActionConte
   const account = (request.sessionData?.account ?? {}) as Account;
   const sessionDTO = JSON.parse(request.body) as CreateSessionDTO;
   const sessionPayload = {
-    reference: Guid.newGuid(),
+    reference: request.sessionData.cartId,
     shopperEmail: account.email,
     shopperLocale: getLocale(request),
     shopperReference: account.accountId,
@@ -38,34 +38,51 @@ export const checkout = async (request: Request, actionContext: ActionContext) =
   const emailApi = new EmailApi(actionContext.frontasticContext.project.configuration.smtp);
   const adyenApi = new AdyenApi(actionContext.frontasticContext.project.configuration.payment.adyen);
 
-  const { account } = JSON.parse(request.body);
-
   const payload = {
     details: {
       redirectResult: JSON.parse(request.body).redirectResult
+      //threeDSResult: 
     }
   } as PaymentDetails;
 
-  const data = await adyenApi.paymentDetails(payload);
+  const data: any = await adyenApi.paymentDetails(payload);
 
-  if (data.resultCode === 'Authorised') {
-    let cart = await CartFetcher.fetchCart(request, actionContext);
-    cart = await cartApi.order(cart);
+  if (data?.resultCode === 'Authorised' && data?.merchantReference) {
+    try {
+      let cart = await cartApi.getById(data.merchantReference);
+      cart = await cartApi.order(cart);
 
-    if (cart) await emailApi.sendPaymentConfirmationEmail(account);
+      const payment: Payment = {
+        id: Guid.newGuid(),
+        paymentId: data.merchantReference,
+        paymentMethod: '',
+        paymentStatus: PaymentStatuses.PENDING,
+        paymentProvider: data.pspReference,
+        amountPlanned: {
+          centAmount: cart.sum.centAmount,
+          currencyCode: cart.sum.currencyCode
+        }
+      };
 
-    // Unset the cartId
-    const cartId: string = undefined;
+      await cartApi.addPayment(cart, payment);
 
-    const response: Response = {
-      statusCode: 200,
-      body: JSON.stringify(data),
-      sessionData: {
-        ...request.sessionData,
-        cartId,
-      },
-    };
-    return response;
+      if (cart) await emailApi.sendPaymentConfirmationEmail(cart.email);
+    } catch(error) {
+
+    }
+    
+      // Unset the cartId
+      const cartId: string = undefined;
+
+      const response: Response = {
+        statusCode: 200,
+        body: JSON.stringify({}),      
+        sessionData: {
+          ...request.sessionData,
+          cartId,
+        },
+      };
+      return response;  
   }
 
   const response: Response = {
@@ -99,7 +116,7 @@ export const notifications = async (request: Request, actionContext: ActionConte
   value=7650&
   live=false&
   eventDate=2022-06-20T07%3A36%3A15.00Z"
-
+  
 
   //const notificationRequestItems = JSON.parse(request.body).notificationItems;
 
