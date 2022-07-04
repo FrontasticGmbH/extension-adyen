@@ -1,7 +1,7 @@
-import {Amount} from "@Types/Amount";
+import { Money } from "../../types/product/Money";
 
 export interface CreateSessionDTO {
-  amount: Amount;
+  amount: Money;
   returnUrl: string;
   expiresAt?: string;
   applicationInfo?: string;
@@ -18,7 +18,7 @@ export interface CreateSessionPayload extends CreateSessionDTO {
 export interface SessionResponse {
   id: string;
   sessionData: string;
-  amount: Amount;
+  amount: Money;
   countryCode?: string;
   expiresAt: string;
   merchantAccount: string;

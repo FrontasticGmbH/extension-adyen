@@ -1,4 +1,4 @@
-import * as AdyenActions from './actionControllers';
+import * as AdyenActions from './actionControllers/AdyenController';
 import { ExtensionRegistry } from '@frontastic/extension-types';
 
 export default {

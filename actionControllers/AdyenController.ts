@@ -1,5 +1,5 @@
 import { ActionContext, Request, Response } from '@frontastic/extension-types/src/ts/index';
-import { CreateSessionDTO, CreateSessionPayload, PaymentDetails } from './../Session';
+import { CreateSessionDTO, CreateSessionPayload, PaymentDetails } from '../Session';
 import AdyenApi from '../BaseApi';
 import { CartApi } from '../../commerce-commercetools/apis/CartApi';
 import { EmailApi } from '../../commerce-commercetools/apis/EmailApi';
