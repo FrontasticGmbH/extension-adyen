@@ -34,7 +34,6 @@ export const createSession = async (request: Request, actionContext: ActionConte
   return response;
 };
 
-
 const createPayment = async (request: Request, actionContext: ActionContext, data: any) => {
   const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
   const emailApi = new EmailApi(actionContext.frontasticContext.project.configuration.smtp);
@@ -76,7 +75,7 @@ export const checkout = async (request: Request, actionContext: ActionContext) =
 
   const data: any = await adyenApi.paymentDetails(payload);
 
-  if (data?.resultCode === 'Authorised' && data?.merchantReference) {
+  /*if (data?.resultCode === 'Authorised' && data?.merchantReference) {
     await createPayment(request, actionContext, data);
 
     // Unset the cartId
@@ -91,7 +90,7 @@ export const checkout = async (request: Request, actionContext: ActionContext) =
       },
     };
     return response;
-  }
+  }*/
 
   const response: Response = {
     statusCode: 200,
