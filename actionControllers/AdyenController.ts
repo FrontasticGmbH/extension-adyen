@@ -1,5 +1,5 @@
 import { ActionContext, Request, Response } from '@frontastic/extension-types/src/ts/index';
-import { CreateSessionDTO, CreateSessionPayload, PaymentDetails } from '../Session';
+import { CreateSessionDTO, CreateSessionPayload, PaymentDetails, PaymentDetailsResponse } from '../Session';
 import AdyenApi from '../BaseApi';
 import { CartApi } from '../../commerce-commercetools/apis/CartApi';
 import { EmailApi } from '../../commerce-commercetools/apis/EmailApi';
@@ -34,7 +34,7 @@ export const createSession = async (request: Request, actionContext: ActionConte
   return response;
 };
 
-const createPayment = async (request: Request, actionContext: ActionContext, data: any) => {
+const createPayment = async (request: Request, actionContext: ActionContext, data: PaymentDetailsResponse) => {
   const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
   const emailApi = new EmailApi(actionContext.frontasticContext.project.configuration.smtp);
 
@@ -61,24 +61,31 @@ const createPayment = async (request: Request, actionContext: ActionContext, dat
   }
 }
 
-export const checkout = async (request: Request, actionContext: ActionContext) => {
-  //const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
-  //const emailApi = new EmailApi(actionContext.frontasticContext.project.configuration.smtp);
+export const checkout = async (request: Request, actionContext: ActionContext) => {  
   const adyenApi = new AdyenApi(actionContext.frontasticContext.project.configuration.payment.adyen);
 
-  const payload = {
+  //const redirectResult = JSON.parse(request.body).redirectResult;
+  //let paymentDetails: PaymentDetailsResponse;
+
+  //if (redirectResult) {
+  const payload: PaymentDetails = {
     details: {
       redirectResult: JSON.parse(request.body).redirectResult
-      //threeDSResult: 
     }
-  } as PaymentDetails;
+  };
 
-  const data: any = await adyenApi.paymentDetails(payload);
+  const paymentDetails = await adyenApi.paymentDetails(payload);
 
-  /*if (data?.resultCode === 'Authorised' && data?.merchantReference) {
-    await createPayment(request, actionContext, data);
+  //} else {
+    /*paymentDetails = {
+      resultCode: 'Authorised',
+      merchantReference: request.sessionData.cartId
+    }*/
+  //}
 
-    // Unset the cartId
+  /*if (paymentDetails.resultCode === 'Authorised') {
+    await createPayment(request, actionContext, paymentDetails);
+
     const cartId: string = undefined;
 
     const response: Response = {
@@ -87,29 +94,39 @@ export const checkout = async (request: Request, actionContext: ActionContext) =
       sessionData: {
         ...request.sessionData,
         cartId,
-      },
+      }
     };
     return response;
   }*/
 
   const response: Response = {
     statusCode: 200,
-    body: JSON.stringify(data),
+    body: JSON.stringify(paymentDetails),
     sessionData: request.sessionData,
   };
   return response;
 };
 
+function paramsToObject(entries: any) {
+  const result = {}
+  for(const [key, value] of entries) { // each 'entry' is a [key, value] tupple
+    result[key] = value;
+  }
+
+  return result;
+}
+
 export const notifications = async (request: Request, actionContext: ActionContext) => {
-  console.log('NOTIFICATIONS INCOMMING');
+  console.error('NOTIFICATIONS INCOMMING');
 
-  const params = new URLSearchParams(request.body);
+  const urlParams = new URLSearchParams(request.body);
+  const params: any = paramsToObject(urlParams.entries());
 
-  console.log('eventCode: ', params.get('eventCode'));
-  console.log('pspReference: ', params.get('pspReference'));
-  console.log('merchantReference: ', params.get('merchantReference'));
+  console.log('eventCode: ', params.eventCode);
+  console.log('pspReference: ', params.pspReference);
+  console.log('merchantReference: ', params.merchantReference);
 
-  if (params.get('eventCode') === 'AUTHORISATION') {
+  if (params.eventCode === 'AUTHORISATION') {
   }
 
 /*

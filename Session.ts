@@ -32,7 +32,16 @@ export interface PaymentDetails {
   }
 }
 
+export interface PaymentMethod {
+  brand: string;
+  type: string;
+}
+
 export interface PaymentDetailsResponse {
   resultCode: string;
   pspReference: string;
+  paymentMethod?: PaymentMethod;
+  merchantReference?: string;
+  refusalReason?: string;
+  refusalReasonCode?: string;
 }
