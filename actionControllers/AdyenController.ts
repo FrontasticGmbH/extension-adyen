@@ -36,7 +36,7 @@ export const createSession = async (request: Request, actionContext: ActionConte
 
 const createPayment = async (request: Request, actionContext: ActionContext, data: PaymentDetailsResponse) => {
   const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
-  const emailApi = new EmailApi(actionContext.frontasticContext.project.configuration.smtp);
+  const emailApi = new EmailApi(actionContext.frontasticContext);
 
   let cart = await cartApi.getById(data.merchantReference);
 
@@ -49,8 +49,8 @@ const createPayment = async (request: Request, actionContext: ActionContext, dat
       paymentProvider: data.pspReference,
       amountPlanned: {
         centAmount: cart.sum.centAmount,
-        currencyCode: cart.sum.currencyCode
-      }
+        currencyCode: cart.sum.currencyCode,
+      },
     };
 
     cart = await cartApi.addPayment(cart, payment);
@@ -59,9 +59,9 @@ const createPayment = async (request: Request, actionContext: ActionContext, dat
 
     await emailApi.sendPaymentConfirmationEmail(cart.email);
   }
-}
+};
 
-export const checkout = async (request: Request, actionContext: ActionContext) => {  
+export const checkout = async (request: Request, actionContext: ActionContext) => {
   const adyenApi = new AdyenApi(actionContext.frontasticContext.project.configuration.payment.adyen);
 
   //const redirectResult = JSON.parse(request.body).redirectResult;
@@ -70,14 +70,14 @@ export const checkout = async (request: Request, actionContext: ActionContext) =
   //if (redirectResult) {
   const payload: PaymentDetails = {
     details: {
-      redirectResult: JSON.parse(request.body).redirectResult
-    }
+      redirectResult: JSON.parse(request.body).redirectResult,
+    },
   };
 
   const paymentDetails = await adyenApi.paymentDetails(payload);
 
   //} else {
-    /*paymentDetails = {
+  /*paymentDetails = {
       resultCode: 'Authorised',
       merchantReference: request.sessionData.cartId
     }*/
@@ -108,8 +108,9 @@ export const checkout = async (request: Request, actionContext: ActionContext) =
 };
 
 function paramsToObject(entries: any) {
-  const result = {}
-  for(const [key, value] of entries) { // each 'entry' is a [key, value] tupple
+  const result = {};
+  for (const [key, value] of entries) {
+    // each 'entry' is a [key, value] tupple
     result[key] = value;
   }
 
@@ -129,7 +130,7 @@ export const notifications = async (request: Request, actionContext: ActionConte
   if (params.eventCode === 'AUTHORISATION') {
   }
 
-/*
+  /*
   "originalReference=&
   reason=null&
   additionalData.checkoutSessionId=CSA10244BE25969113&
@@ -144,7 +145,7 @@ export const notifications = async (request: Request, actionContext: ActionConte
   value=7650&
   live=false&
   eventDate=2022-06-20T07%3A36%3A15.00Z"
-  
+
 
   //const notificationRequestItems = JSON.parse(request.body).notificationItems;
 
