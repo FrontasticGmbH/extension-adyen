@@ -36,7 +36,7 @@ class BaseApi {
   }
 
   async paymentDetails(payload: PaymentDetails) {
-    const response = await this.instance.post<PaymentDetailsResponse>('/payments/details', payload);    
+    const response = await this.instance.post<PaymentDetailsResponse>('/payments/details', payload);
     return AdyenMapper.adyenPaymentDetailsToDetails(response.data);
   }
 }
