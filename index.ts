@@ -3,6 +3,6 @@ import { ExtensionRegistry } from '@frontastic/extension-types';
 
 export default {
   actions: {
-    adyen: AdyenActions,
+    payment: AdyenActions,
   },
 } as ExtensionRegistry;
