@@ -2,7 +2,6 @@ import { ActionContext, Request, Response } from '@frontastic/extension-types/sr
 import { CreateSessionDTO, CreateSessionPayload } from './../Session';
 import AdyenApi from '../BaseApi';
 import { CartApi } from '../../commerce-commercetools/apis/CartApi';
-import { EmailApi } from '../../commerce-commercetools/apis/EmailApi';
 import { Guid } from '../utils/Guid';
 import { getLocale } from '../utils/Request';
 import { CartFetcher } from '../utils/CartFetcher';
@@ -26,8 +25,8 @@ export const createSession = async (request: Request, actionContext: ActionConte
       paymentProvider: '',
       amountPlanned: {
         centAmount: 0,
-        currencyCode: 'EUR'
-      }
+        currencyCode: 'EUR',
+      },
     };
 
     cart = await cartApi.addPayment(cart, payment);
@@ -92,17 +91,17 @@ const updateOrderPayment = async (request: Request, actionContext: ActionContext
     amountPlanned: {
       centAmount: Number(notification.amount.value),
       currencyCode: notification.amount.currency,
-    }
-  }
+    },
+  };
 
   let payment = await cartApi.getPayment(notification.merchantReference);
 
   payment = await cartApi.updateOrderPayment(payment.id, paymentDraft);
 
   //await emailApi.sendPaymentConfirmationEmail(email);
-}
+};
 
-export const notifications = async (request: Request, actionContext: ActionContext) => {    
+export const notifications = async (request: Request, actionContext: ActionContext) => {
   const { notificationItems } = JSON.parse(request.body);
   const hmacKey = actionContext.frontasticContext.project.configuration.payment.adyen.hmacKey;
 
@@ -111,8 +110,8 @@ export const notifications = async (request: Request, actionContext: ActionConte
   // @ts-ignore
   notificationItems.forEach(({ NotificationRequestItem }: any) => {
     if (validator.validateHMAC(NotificationRequestItem, hmacKey)) {
-      if (NotificationRequestItem.eventCode === 'AUTHORISATION' && NotificationRequestItem.success === 'true') {  
-        updateOrderPayment(request, actionContext, NotificationRequestItem);                    
+      if (NotificationRequestItem.eventCode === 'AUTHORISATION' && NotificationRequestItem.success === 'true') {
+        updateOrderPayment(request, actionContext, NotificationRequestItem);
       }
     } else {
       const response: Response = {
