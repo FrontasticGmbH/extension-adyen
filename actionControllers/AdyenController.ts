@@ -9,11 +9,12 @@ import { Account } from '../../../types/account/Account';
 import { Payment, PaymentStatuses } from '../../../types/cart/Payment';
 
 import { hmacValidator } from '@adyen/api-library';
+import { getToken } from '../../commerce-commercetools/utils/Token';
 //const { hmacValidator } = require('@adyen/api-library');
 
 export const createSession = async (request: Request, actionContext: ActionContext) => {
   const adyenApi = new AdyenApi(actionContext.frontasticContext.project.configuration.payment.adyen);
-  const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
+  const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request), getToken(request));
 
   let cart = await CartFetcher.fetchCart(request, actionContext);
 
