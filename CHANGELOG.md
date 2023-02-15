@@ -1,4 +1,10 @@
 
+## Version 1.0.1 (2023-02-15)
+
+** New Features and Improvements **
+
+- Removed token from API instance creation
+
 ## Version 1.0.0 (2023-02-03)
 
 ** New Features and Improvements **
