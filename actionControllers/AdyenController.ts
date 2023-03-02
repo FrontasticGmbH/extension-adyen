@@ -1,12 +1,12 @@
 import { ActionContext, Request, Response } from '@frontastic/extension-types/src/ts/index';
 import { CreateSessionDTO, CreateSessionPayload } from './../Session';
 import AdyenApi from '../BaseApi';
-import { CartApi } from '../../commerce-commercetools/apis/CartApi';
+import { CartApi } from '@Commerce-commercetools/apis/CartApi';
 import { Guid } from '../utils/Guid';
 import { getLocale } from '../utils/Request';
 import { CartFetcher } from '../utils/CartFetcher';
-import { Account } from '../../../types/account/Account';
-import { Payment, PaymentStatuses } from '../../../types/cart/Payment';
+import { Account } from '@Types/account/Account';
+import { Payment, PaymentStatuses } from '@Types/cart/Payment';
 
 import { hmacValidator } from '@adyen/api-library';
 //const { hmacValidator } = require('@adyen/api-library');

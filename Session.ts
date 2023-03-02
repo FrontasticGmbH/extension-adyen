@@ -1,4 +1,4 @@
-import { Money } from '../../types/product/Money';
+import { Money } from '@Types/product/Money';
 
 export interface CreateSessionDTO {
   amount: Money;
