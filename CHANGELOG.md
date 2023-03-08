@@ -1,4 +1,10 @@
 
+## Version 1.1.0 (2023-03-08)
+
+** New Features and Improvements **
+
+- Get types from alias
+
 ## Version 1.0.1 (2023-02-15)
 
 ** New Features and Improvements **
