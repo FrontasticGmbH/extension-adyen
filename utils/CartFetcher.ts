@@ -3,10 +3,11 @@ import { Cart } from '@Types/cart/Cart';
 import { CartApi } from '@Commerce-commercetools/apis/CartApi';
 import { Guid } from './Guid';
 import { getLocale } from './Request';
+import { getCurrency } from '@Commerce-commercetools/utils/Request';
 
 export class CartFetcher {
   static async fetchCart(request: Request, actionContext: ActionContext): Promise<Cart> {
-    const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
+    const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request), getCurrency(request));
 
     if (request.sessionData?.account !== undefined) {
       return await cartApi.getForUser(request.sessionData.account);

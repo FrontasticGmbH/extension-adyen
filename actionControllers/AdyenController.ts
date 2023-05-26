@@ -9,11 +9,12 @@ import { Account } from '@Types/account/Account';
 import { Payment, PaymentStatuses } from '@Types/cart/Payment';
 
 import { hmacValidator } from '@adyen/api-library';
+import { getCurrency } from '@Commerce-commercetools/utils/Request';
 //const { hmacValidator } = require('@adyen/api-library');
 
 export const createSession = async (request: Request, actionContext: ActionContext) => {
   const adyenApi = new AdyenApi(actionContext.frontasticContext.project.configuration.payment.adyen);
-  const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
+  const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request), getCurrency(request));
 
   let cart = await CartFetcher.fetchCart(request, actionContext);
 
@@ -80,7 +81,7 @@ const createOrderWithPayment = async (request: Request, actionContext: ActionCon
 */
 
 const updateOrderPayment = async (request: Request, actionContext: ActionContext, notification: any) => {
-  const cartApi = new CartApi(actionContext.frontasticContext, actionContext.frontasticContext.project.defaultLocale);
+  const cartApi = new CartApi(actionContext.frontasticContext, actionContext.frontasticContext.project.defaultLocale, getCurrency(request));
   //const emailApi = new EmailApi(actionContext.frontasticContext);
 
   const paymentDraft: Payment = {
