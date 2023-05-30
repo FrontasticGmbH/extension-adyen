@@ -81,7 +81,11 @@ const createOrderWithPayment = async (request: Request, actionContext: ActionCon
 */
 
 const updateOrderPayment = async (request: Request, actionContext: ActionContext, notification: any) => {
-  const cartApi = new CartApi(actionContext.frontasticContext, actionContext.frontasticContext.project.defaultLocale, getCurrency(request));
+  const cartApi = new CartApi(
+    actionContext.frontasticContext,
+    actionContext.frontasticContext.project.defaultLocale,
+    getCurrency(request),
+  );
   //const emailApi = new EmailApi(actionContext.frontasticContext);
 
   const paymentDraft: Payment = {
