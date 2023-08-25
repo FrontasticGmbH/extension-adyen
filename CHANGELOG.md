@@ -1,4 +1,14 @@
 
+## Version 1.2.0 (2023-08-25)
+
+** New Features and Improvements **
+
+- Get project configuration schemas for our extensions
+
+** Bug fixes **
+
+- Allow currency to be passed in query
+
 ## Version 1.1.0 (2023-03-08)
 
 ** New Features and Improvements **
